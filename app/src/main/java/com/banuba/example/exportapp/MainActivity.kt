@@ -15,6 +15,7 @@ import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import com.banuba.sdk.core.AspectRatio
+import com.banuba.sdk.core.Rotation
 import com.banuba.sdk.core.effects.IVisualEffectDrawable
 import com.banuba.sdk.core.ext.copyFromAssetsToExternal
 import com.banuba.sdk.core.media.DurationExtractor
@@ -50,14 +51,17 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         val effects = generateEffects()
 
+        val emptyMusicParams = ExportMusicParams(emptyList(), 0f)
+
+        val coverFrameSize = Size(720, 1080)
+
         exportFlowManger.startExport(
             ExportTaskParams(
                 videoRanges = videoRanges,
                 effects = effects,
-                exportMusicParams = ExportMusicParams(emptyList(), 0f),
-                coverFrameSize = Size(720, 1080),
-                singleSlideshowSourcePath = null,
-                aspect = AspectRatio.DEFAULT
+                exportMusicParams = emptyMusicParams,
+                coverFrameSize = coverFrameSize,
+                aspect = AspectRatio.DEFAULT        //AspectRatio.DEFAULT == AspectRatio(9.0 / 16)
             )
         )
     }
@@ -70,7 +74,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             when (exportResult) {
                 is ExportResult.Inactive, is ExportResult.Stopped -> progressVisible(false)
 
-                is ExportResult.Progress ->  progressVisible(true)
+                is ExportResult.Progress -> progressVisible(true)
 
                 is ExportResult.Success -> {
                     progressVisible(false)
@@ -97,36 +101,55 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
+    /**
+     * You can set custom video ranges for your purposes. This requires
+     * playFromMs and playToMs arguments to be set when creating the VideoRecordRange object.
+     * Code below uses a range from 0 to video length for each video.
+     */
     private fun generateVideoRangeList(videosUri: List<Uri>): VideoRangeList {
         val videoRecords = videosUri.map { fileUri ->
             val videoDuration = DurationExtractor().extractDurationMilliSec(this, fileUri)
             val videoSpeed = 1f
             VideoRecordRange(
-                sourceUri = fileUri,
-                durationMs = videoDuration,
-                speed = videoSpeed
+                sourceUri = fileUri,            //mandatory, uri of video file
+                durationMs = videoDuration,     //mandatory, duration of video
+                speed = videoSpeed,             //mandatory, video playback speed
+                playFromMs = 0,                 //optional, by default equals 0
+                playToMs = videoDuration,       //optional, by default equals duration of video,
+                rotation = Rotation.ROTATION_0  //optional, by default ROTATION_0
             )
         }
         return VideoRangeList(videoRecords)
     }
 
+    /**
+     * Effects are generated that are applied to the video. The code below
+     * creates two visual effects: text and gif. Both effects are applied to the entire length
+     * of the video.
+     */
     private fun generateEffects(): Effects {
         val effectText = createTextVisualEffect()
         val effectGif = createGifVisualEffect()
 
+        // Visual effects i.e. VHS, Glitch are not fully supported yet
         val visualStack = Stack<VisualTimedEffect>().apply {
             add(VisualTimedEffect.getFullRange(effectText))
             add(VisualTimedEffect.getFullRange(effectGif))
         }
 
-        val speedStack = Stack<SpeedTimedEffect>()
+        //Use empty stack because speed effects are not fully supported yet.
+        val empty = Stack<SpeedTimedEffect>()
 
         return Effects(
             visualStack = visualStack,
-            speedStack = speedStack
+            speedStack = empty
         )
     }
 
+    /**
+     * Creates a text effect. The text is created using a canvas and converted to a bitmap.
+     * RectParams are used to set the coordinates, size, scale and rotation of the effect.
+     */
     private fun createTextVisualEffect(): IVisualEffectDrawable {
         val bitmap = Bitmap.createBitmap(800, 150, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
@@ -143,6 +166,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         return TextObjectDrawable(UUID.randomUUID(), bitmap, rectParams)
     }
 
+    /**
+     * Creates a gif(sticker) effect. Gif file must be downloaded to be used as an effect.
+     * The code below uses gif from assets.
+     * RectParams are used to set the coordinates, size, scale and rotation of the bitmap.
+     */
     private fun createGifVisualEffect(): IVisualEffectDrawable {
         val stickerUri = copyFromAssetsToExternal("example.gif").toUri()
 
@@ -152,6 +180,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         return GifObjectDrawable(UUID.randomUUID(), stickerUri, rectParams)
     }
+
 
     private fun RectParams.setCoordinates(
         x: Float,
