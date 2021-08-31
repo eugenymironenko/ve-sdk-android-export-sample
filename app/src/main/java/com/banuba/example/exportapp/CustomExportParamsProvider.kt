@@ -40,8 +40,8 @@ class CustomExportParamsProvider(
 
         val paramsHdWithWatermark =
             ExportManager.Params.Builder(VideoResolution.HD)
-                .effects(effects)
-                .fileName(mediaFileNameHelper.generateExportName())
+                .effects(effects.withWatermark(watermarkBuilder, WatermarkAlignment.BOTTOM_RIGHT))
+                .fileName("export_default")
                 .debugEnabled(true)
                 .videoRangeList(videoRangeList)
                 .destDir(exportSessionDir)

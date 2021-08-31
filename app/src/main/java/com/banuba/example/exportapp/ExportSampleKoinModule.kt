@@ -2,7 +2,6 @@ package com.banuba.example.exportapp
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import com.banuba.example.exportapp.CustomExportParamsProvider
 import com.banuba.sdk.export.data.BackgroundExportFlowManager
 import com.banuba.sdk.export.data.ExportParamsProvider
 import com.banuba.sdk.ve.R
@@ -11,7 +10,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-class VideoEditorModule() {
+class ExportSampleKoinModule() {
 
     val module = module {
 
@@ -47,9 +46,5 @@ class VideoEditorModule() {
                 )
             }
         }
-
-
     }
-
-
 }
