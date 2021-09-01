@@ -12,7 +12,6 @@ buildscript {
     }
 }
 
-
 allprojects {
     repositories {
         // copy Banuba repositories with credentials into your project level build.gradle
@@ -22,14 +21,6 @@ allprojects {
         maven {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/Banuba/banuba-ve-sdk")
-            credentials {
-                username = banubaRepoUser
-                password = banubaRepoPassword
-            }
-        }
-        maven {
-            name = "ARCloudPackages"
-            url = uri("https://maven.pkg.github.com/Banuba/banuba-ar")
             credentials {
                 username = banubaRepoUser
                 password = banubaRepoPassword
