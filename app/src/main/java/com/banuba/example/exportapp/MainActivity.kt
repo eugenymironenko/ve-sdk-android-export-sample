@@ -1,5 +1,6 @@
 package com.banuba.example.exportapp
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -11,6 +12,7 @@ import android.util.Size
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
@@ -18,6 +20,7 @@ import com.banuba.sdk.core.AspectRatio
 import com.banuba.sdk.core.Rotation
 import com.banuba.sdk.core.effects.IVisualEffectDrawable
 import com.banuba.sdk.core.ext.copyFromAssetsToExternal
+import com.banuba.sdk.core.ext.isNullOrEmpty
 import com.banuba.sdk.core.media.DurationExtractor
 import com.banuba.sdk.export.data.ExportFlowManager
 import com.banuba.sdk.ve.data.ExportMusicParams
@@ -33,19 +36,26 @@ import com.banuba.sdk.ve.effects.`object`.GifObjectDrawable
 import com.banuba.sdk.ve.effects.`object`.TextObjectDrawable
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.inject
+import org.koin.core.qualifier.named
+import java.io.File
 import java.util.Stack
 import java.util.UUID
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
-    private val exportFlowManger: ExportFlowManager by inject()
+    private val backgroundExportFlowManager: ExportFlowManager by inject(named("backgroundExportFlowManager"))
+    private val foregroundExportFlowManager: ExportFlowManager by inject(named("foregroundExportFlowManager"))
+
+    private var isBackgroundExport = true
+
+    private var exportResultVideoUri = Uri.EMPTY
 
     private val getPredefinedVideos = registerForActivityResult(
         ActivityResultContracts.GetMultipleContents()
     ) { videosUri ->
-        progressVisible(true)
-
         if (videosUri.isNullOrEmpty()) return@registerForActivityResult
+
+        progressVisible(true)
 
         val videoRanges = generateVideoRangeList(videosUri)
 
@@ -55,49 +65,77 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         val coverFrameSize = Size(720, 1080)
 
-        exportFlowManger.startExport(
-            ExportTaskParams(
-                videoRanges = videoRanges,
-                effects = effects,
-                exportMusicParams = emptyMusicParams,
-                coverFrameSize = coverFrameSize,
-                aspect = AspectRatio.DEFAULT        //AspectRatio.DEFAULT == AspectRatio(9.0 / 16)
-            )
+        val exportTaskParams = ExportTaskParams(
+            videoRanges = videoRanges,
+            effects = effects,
+            exportMusicParams = emptyMusicParams,
+            coverFrameSize = coverFrameSize,
+            aspect = AspectRatio.DEFAULT        //AspectRatio.DEFAULT == AspectRatio(9.0 / 16)
         )
+
+        if (isBackgroundExport) {
+            backgroundExportFlowManager.startExport(exportTaskParams)
+        } else {
+            foregroundExportFlowManager.startExport(exportTaskParams)
+        }
+    }
+
+    private val exportResultObserver = Observer<ExportResult> { exportResult ->
+        when (exportResult) {
+            is ExportResult.Inactive, is ExportResult.Stopped -> progressVisible(false)
+
+            is ExportResult.Progress -> {
+                previewImageView.setImageURI(exportResult.preview)
+                progressVisible(true)
+            }
+
+            is ExportResult.Success -> {
+                progressVisible(false)
+                exportResultVideoUri = exportResult.videoList.first().sourceUri
+                Toast.makeText(
+                    this,
+                    "Export Success: ${exportResult.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            is ExportResult.Error -> {
+                progressVisible(false)
+                Toast.makeText(
+                    this,
+                    getString(exportResult.type.messageResId),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        exportFlowManger.resultData.observe(this, Observer { exportResult ->
+        backgroundExportFlowManager.resultData.observe(this, exportResultObserver)
+        foregroundExportFlowManager.resultData.observe(this, exportResultObserver)
 
-            when (exportResult) {
-                is ExportResult.Inactive, is ExportResult.Stopped -> progressVisible(false)
+        backgroundExportBtn.setOnClickListener {
+            pickPredefinedVideos(true)
+        }
 
-                is ExportResult.Progress -> progressVisible(true)
+        foregroundExportBtn.setOnClickListener {
+            pickPredefinedVideos(false)
+        }
 
-                is ExportResult.Success -> {
-                    progressVisible(false)
-                    Toast.makeText(
-                        this,
-                        "Export Success: ${exportResult.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-                is ExportResult.Error -> {
-                    progressVisible(false)
-                    Toast.makeText(
-                        this,
-                        getString(exportResult.type.messageResId),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+        stopExportBtn.setOnClickListener {
+            exportResultVideoUri = Uri.EMPTY
+            if (isBackgroundExport) {
+                backgroundExportFlowManager.stopExport()
+            } else {
+                foregroundExportFlowManager.stopExport()
             }
-        })
+        }
 
-        exportBtn.setOnClickListener {
-            pickPredefinedVideos()
+        previewImageView.setOnClickListener {
+            if (exportResultVideoUri.isNullOrEmpty()) return@setOnClickListener
+            openVideo(exportResultVideoUri)
         }
     }
 
@@ -210,12 +248,32 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         )
     }
 
-    private fun pickPredefinedVideos() {
+    private fun pickPredefinedVideos(isBackground: Boolean) {
+        previewImageView.setImageURI(null)
+        isBackgroundExport = isBackground
         getPredefinedVideos.launch("video/*")
     }
 
-    private fun progressVisible(isVisible: Boolean) {
-        exportProgressView.isVisible = isVisible
-        exportBtn.isVisible = !isVisible
+    private fun progressVisible(isExporting: Boolean) {
+        if (!isBackgroundExport) {
+            exportProgressView.isVisible = isExporting
+        }
+        backgroundExportBtn.isEnabled = !isExporting
+        foregroundExportBtn.isEnabled = !isExporting
+    }
+
+    private fun openVideo(videoUri: Uri) {
+        videoUri.encodedPath?.let { encodedPath ->
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                val uri = FileProvider.getUriForFile(
+                    applicationContext,
+                    "$packageName.provider",
+                    File(encodedPath)
+                )
+                setDataAndType(uri, "video/mp4")
+            }
+            startActivity(intent)
+        }
     }
 }

@@ -6,15 +6,53 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <ImageView
+        android:id="@+id/previewImageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        android:scaleType="centerInside"
+        android:text="Background Export"
+        app:layout_constraintBottom_toTopOf="@+id/backgroundExportBtn"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:ignore="ContentDescription,HardcodedText" />
+
     <Button
-        android:id="@+id/exportBtn"
+        android:id="@+id/backgroundExportBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Export"
+        android:text="Background Export"
+        app:layout_constraintBottom_toTopOf="@+id/foregroundExportBtn"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/foregroundExportBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Foreground Export"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/backgroundExportBtn"
+        tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/stopExportBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Stop Export"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/foregroundExportBtn"
+        tools:ignore="HardcodedText" />
 
     <ProgressBar
         android:id="@+id/exportProgressView"
@@ -22,9 +60,10 @@
         android:layout_height="50dp"
         android:layout_gravity="center"
         android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/stopExportBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/foregroundExportBtn" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
