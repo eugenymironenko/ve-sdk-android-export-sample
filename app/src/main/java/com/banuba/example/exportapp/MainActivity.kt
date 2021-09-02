@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         val effects = generateEffects()
 
-        val emptyMusicParams = ExportMusicParams(emptyList(), 0f)
+        val emptyMusicParams = ExportMusicParams(emptyList(), 1f)
 
         val coverFrameSize = Size(720, 1080)
 
