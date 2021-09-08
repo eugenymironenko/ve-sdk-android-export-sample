@@ -22,6 +22,8 @@ import com.banuba.sdk.core.effects.IVisualEffectDrawable
 import com.banuba.sdk.core.ext.copyFromAssetsToExternal
 import com.banuba.sdk.core.ext.isNullOrEmpty
 import com.banuba.sdk.core.media.DurationExtractor
+import com.banuba.sdk.effects.ve.visual.BaseVisualEffectDrawable
+import com.banuba.sdk.effects.ve.visual.vhs.VHSDrawable
 import com.banuba.sdk.export.data.ExportFlowManager
 import com.banuba.sdk.ve.data.ExportMusicParams
 import com.banuba.sdk.ve.data.ExportResult
@@ -162,17 +164,19 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     /**
      * Effects are generated that are applied to the video. The code below
-     * creates two visual effects: text and gif. Both effects are applied to the entire length
+     * creates three visual effects: text, gif and fx. All effects are applied to the entire length
      * of the video.
      */
     private fun generateEffects(): Effects {
         val effectText = createTextVisualEffect()
         val effectGif = createGifVisualEffect()
+        val effectFx = generateFxEffect()
 
         // Visual effects i.e. VHS, Glitch are not fully supported yet
         val visualStack = Stack<VisualTimedEffect>().apply {
             add(VisualTimedEffect.getFullRange(effectText))
             add(VisualTimedEffect.getFullRange(effectGif))
+            add(VisualTimedEffect.getFullRange(effectFx))
         }
 
         //Use empty stack because speed effects are not fully supported yet.
@@ -182,6 +186,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             visualStack = visualStack,
             speedStack = empty
         )
+    }
+
+    /**
+     * Creates fx effect.
+     * To get full list of fx effects, check classes of BaseVisualEffectDrawable type.
+     */
+    private fun generateFxEffect(): BaseVisualEffectDrawable {
+        return VHSDrawable()
     }
 
     /**

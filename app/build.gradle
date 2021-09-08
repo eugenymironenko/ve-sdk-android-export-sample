@@ -47,6 +47,9 @@ dependencies {
     implementation "com.banuba.sdk:ve-sdk:${banubaSdkVersion}"
     implementation "com.banuba.sdk:ve-export-sdk:${banubaSdkVersion}"
 
+    // contains Visual and Time effects
+    implementation "com.banuba.sdk:ve-effects-sdk:${banubaSdkVersion}"
+
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
