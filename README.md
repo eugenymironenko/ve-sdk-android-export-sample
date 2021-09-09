@@ -57,7 +57,7 @@ Banuba token should be put [here](https://github.com/Banuba/ve-sdk-android-expor
 ### Add dependencies
 Please, specify a list of dependencies as in [app/build.gradle](app/build.gradle) file to integrate export functionality of Export API.
 
-``` xml
+``` groovy
 def banubaSdkVersion = '1.0.18.1'
 implementation "com.banuba.sdk:banuba-token-storage-sdk:${banubaSdkVersion}"
 implementation "com.banuba.sdk:core-sdk:${banubaSdkVersion}"
@@ -195,4 +195,12 @@ You can add an effect objects such as gif and text to exporting video.
 
 To create this effects you need to use `TextObjectDrawable` and `GifObjectDrawable` classes.
 
-Please, checkout [example](app/src/main/java/com/banuba/example/exportapp/MainActivity.kt#L168) of creating effects.
+To create more advanced effects (i.e. fx or time effects) you should use an additional dependency:
+
+``` groovy
+implementation "com.banuba.sdk:ve-effects-sdk:${banubaSdkVersion}"
+```
+
+Note that you can use **fx** and **time** effects only available to you according to the pricing plan. Trying to use prohibited effects will lead to an exception.
+
+Please, checkout [example](app/src/main/java/com/banuba/example/exportapp/MainActivity.kt#L170) of creating effects.
