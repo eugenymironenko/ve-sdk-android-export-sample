@@ -18,16 +18,17 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import com.banuba.sdk.core.AspectRatio
 import com.banuba.sdk.core.Rotation
-import com.banuba.sdk.core.effects.IVisualEffectDrawable
 import com.banuba.sdk.core.ext.copyFromAssetsToExternal
 import com.banuba.sdk.core.ext.isNullOrEmpty
 import com.banuba.sdk.core.media.DurationExtractor
-import com.banuba.sdk.effects.ve.visual.BaseVisualEffectDrawable
+import com.banuba.sdk.effects.ve.time.speed.RapidEffect
+import com.banuba.sdk.effects.ve.time.speed.SlowMotionEffect
 import com.banuba.sdk.effects.ve.visual.vhs.VHSDrawable
 import com.banuba.sdk.export.data.ExportFlowManager
 import com.banuba.sdk.ve.data.ExportMusicParams
 import com.banuba.sdk.ve.data.ExportResult
 import com.banuba.sdk.ve.data.ExportTaskParams
+import com.banuba.sdk.ve.domain.TimeBundle
 import com.banuba.sdk.ve.domain.VideoRangeList
 import com.banuba.sdk.ve.domain.VideoRecordRange
 import com.banuba.sdk.ve.effects.Effects
@@ -61,7 +62,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         val videoRanges = generateVideoRangeList(videosUri)
 
-        val effects = generateEffects()
+        val totalVideoDuration = videoRanges.data.sumOf { it.durationMs }
+
+        val effects = generateEffects(totalVideoDuration)
 
         val emptyMusicParams = ExportMusicParams(emptyList(), 1f)
 
@@ -167,20 +170,26 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
      * creates three visual effects: text, gif and fx. All effects are applied to the entire length
      * of the video.
      */
-    private fun generateEffects(): Effects {
+    private fun generateEffects(totalVideoDuration: Long): Effects {
         val effectText = createTextVisualEffect()
         val effectGif = createGifVisualEffect()
         val effectFx = generateFxEffect()
 
         // Visual effects i.e. VHS, Glitch are not fully supported yet
         val visualStack = Stack<VisualTimedEffect>().apply {
-            add(VisualTimedEffect.getFullRange(effectText))
-            add(VisualTimedEffect.getFullRange(effectGif))
-            add(VisualTimedEffect.getFullRange(effectFx))
+            add(effectText)
+            add(effectGif)
+            add(effectFx)
         }
 
+        val rapidEffect = createRapidEffect(totalVideoDuration)
+        val slowMotionEffect = createSlowMotionEffect(totalVideoDuration)
+
         //Use empty stack because speed effects are not fully supported yet.
-        val empty = Stack<SpeedTimedEffect>()
+        val empty = Stack<SpeedTimedEffect>().apply {
+            add(rapidEffect)
+            add(slowMotionEffect)
+        }
 
         return Effects(
             visualStack = visualStack,
@@ -192,15 +201,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
      * Creates fx effect.
      * To get full list of fx effects, check classes of BaseVisualEffectDrawable type.
      */
-    private fun generateFxEffect(): BaseVisualEffectDrawable {
-        return VHSDrawable()
+    private fun generateFxEffect(): VisualTimedEffect {
+        return VisualTimedEffect.getFullRange(VHSDrawable())
     }
 
     /**
      * Creates a text effect. The text is created using a canvas and converted to a bitmap.
      * RectParams are used to set the coordinates, size, scale and rotation of the effect.
      */
-    private fun createTextVisualEffect(): IVisualEffectDrawable {
+    private fun createTextVisualEffect(): VisualTimedEffect {
         val bitmap = Bitmap.createBitmap(800, 150, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -213,7 +222,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             setCoordinates(150f, 300f, bitmap.width.toFloat(), bitmap.height.toFloat(), 0.8f, 0f)
         }
 
-        return TextObjectDrawable(UUID.randomUUID(), bitmap, rectParams)
+        return VisualTimedEffect.getFullRange(
+            TextObjectDrawable(UUID.randomUUID(), bitmap, rectParams)
+        )
     }
 
     /**
@@ -221,14 +232,46 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
      * The code below uses gif from assets.
      * RectParams are used to set the coordinates, size, scale and rotation of the bitmap.
      */
-    private fun createGifVisualEffect(): IVisualEffectDrawable {
+    private fun createGifVisualEffect(): VisualTimedEffect {
         val stickerUri = copyFromAssetsToExternal("example.gif").toUri()
 
         val rectParams = RectParams().apply {
             setCoordinates(200f, 700f, 361f, 277f, 1f, 20f)
         }
 
-        return GifObjectDrawable(UUID.randomUUID(), stickerUri, rectParams)
+        return VisualTimedEffect.getFullRange(
+            GifObjectDrawable(UUID.randomUUID(), stickerUri, rectParams)
+        )
+    }
+
+    /**
+     * Creates Rapid speed effect from the beginning to the middle of the video
+     */
+    private fun createRapidEffect(videoDuration: Long): SpeedTimedEffect {
+        val videoMid = videoDuration.toInt() / 2
+        val speedEffect = RapidEffect()
+        return SpeedTimedEffect.getRanged(
+            speedEffect,
+            TimeBundle(0, 0),
+            0,
+            TimeBundle(0, videoMid),
+            videoMid
+        )
+    }
+
+    /**
+     * Creates SlowMotion speed effect from the middle to the end of the video
+     */
+    private fun createSlowMotionEffect(videoDuration: Long): SpeedTimedEffect {
+        val videoMid = videoDuration.toInt() / 2
+        val speedEffect = SlowMotionEffect()
+        return SpeedTimedEffect.getRanged(
+            speedEffect,
+            TimeBundle(0, videoMid),
+            videoMid,
+            TimeBundle(0, videoDuration.toInt()),
+            videoDuration.toInt()
+        )
     }
 
 
