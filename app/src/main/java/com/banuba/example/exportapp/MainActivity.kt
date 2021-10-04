@@ -202,7 +202,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
      * To get full list of fx effects, check classes of BaseVisualEffectDrawable type.
      */
     private fun generateFxEffect(): VisualTimedEffect {
-        return VisualTimedEffect.getFullRange(VHSDrawable())
+        return VisualTimedEffect(effectDrawable = VHSDrawable())
     }
 
     /**
@@ -222,8 +222,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             setCoordinates(150f, 300f, bitmap.width.toFloat(), bitmap.height.toFloat(), 0.8f, 0f)
         }
 
-        return VisualTimedEffect.getFullRange(
-            TextObjectDrawable(UUID.randomUUID(), bitmap, rectParams)
+        return VisualTimedEffect(
+            effectDrawable = TextObjectDrawable(UUID.randomUUID(), bitmap, rectParams)
         )
     }
 
@@ -239,8 +239,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             setCoordinates(200f, 700f, 361f, 277f, 1f, 20f)
         }
 
-        return VisualTimedEffect.getFullRange(
-            GifObjectDrawable(UUID.randomUUID(), stickerUri, rectParams)
+        return VisualTimedEffect(
+            effectDrawable = GifObjectDrawable(UUID.randomUUID(), stickerUri, rectParams)
         )
     }
 
@@ -250,12 +250,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private fun createRapidEffect(videoDuration: Long): SpeedTimedEffect {
         val videoMid = videoDuration.toInt() / 2
         val speedEffect = RapidEffect()
-        return SpeedTimedEffect.getRanged(
-            speedEffect,
-            TimeBundle(0, 0),
-            0,
-            TimeBundle(0, videoMid),
-            videoMid
+        return SpeedTimedEffect(
+            effectDrawable = speedEffect,
+            startTimeBundle = TimeBundle(0, 0),
+            startTotal = 0,
+            endTimeBundle = TimeBundle(0, videoMid),
+            endTotal = videoMid
         )
     }
 
@@ -265,12 +265,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private fun createSlowMotionEffect(videoDuration: Long): SpeedTimedEffect {
         val videoMid = videoDuration.toInt() / 2
         val speedEffect = SlowMotionEffect()
-        return SpeedTimedEffect.getRanged(
-            speedEffect,
-            TimeBundle(0, videoMid),
-            videoMid,
-            TimeBundle(0, videoDuration.toInt()),
-            videoDuration.toInt()
+        return SpeedTimedEffect(
+            effectDrawable = speedEffect,
+            startTimeBundle = TimeBundle(0, videoMid),
+            startTotal = videoMid,
+            endTimeBundle = TimeBundle(0, videoDuration.toInt()),
+            endTotal = videoDuration.toInt()
         )
     }
 

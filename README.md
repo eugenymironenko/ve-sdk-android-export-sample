@@ -58,7 +58,7 @@ Banuba token should be put [here](https://github.com/Banuba/ve-sdk-android-expor
 Please, specify a list of dependencies as in [app/build.gradle](app/build.gradle) file to integrate export functionality of Export API.
 
 ``` groovy
-def banubaSdkVersion = '1.0.18.1'
+def banubaSdkVersion = '1.19.0'
 implementation "com.banuba.sdk:banuba-token-storage-sdk:${banubaSdkVersion}"
 implementation "com.banuba.sdk:core-sdk:${banubaSdkVersion}"
 implementation "com.banuba.sdk:ve-sdk:${banubaSdkVersion}"
@@ -143,6 +143,7 @@ interface ExportFlowManager {
 
     fun startExport(exportTaskParams: ExportTaskParams)
     fun stopExport()
+    fun setInactive()
 }
 ```
 
@@ -203,4 +204,4 @@ implementation "com.banuba.sdk:ve-effects-sdk:${banubaSdkVersion}"
 
 Note that you can use **fx** and **time** effects only available to you according to the pricing plan. Trying to use prohibited effects will lead to an exception.
 
-Please, checkout [example](app/src/main/java/com/banuba/example/exportapp/MainActivity.kt#L170) of creating effects.
+Please, checkout [example](app/src/main/java/com/banuba/example/exportapp/MainActivity.kt#L173) of creating effects.
