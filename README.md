@@ -1,8 +1,12 @@
 [![](https://www.banuba.com/hubfs/Banuba_November2018/Images/Banuba%20SDK.png)](https://www.banuba.com/video-editor-sdk)
 
-# Android Banuba Export API Integration Sample
+# Android Banuba AI Video Editor Export API Integration Sample
 
-This repository contains sample of using Banuba Export API. The sample demonstrates how to create a video with text and sticker effects.
+This repository contains a sample of using AI Video Editor Export API in your mobile app.
+
+Export API can apply configurable effects to video and export that video with specified parameters. Export API has no UI, hence cannot display applied effects.
+
+It contains the must-have video editing features such as adding video effects, gif/text, watermark, speed effects, color effects, AR effects to the exported video with a predefined position, duration and period. It can also edit the aspect ratio. Supports export in foreground or background mode.
 
 - [Requirements](#Requirements)
 - [Dependencies](#Dependencies)
@@ -37,16 +41,16 @@ This is what you need to run the Export API
 ## Supported media formats
 | Audio      | Video      |
 | ---------- | ---------  | 
-|.mp3, .aac, .wav, <br>.m4a, .flac, .aiff |.mp4, .mov, .m4v|
+|mp3, aac, wav, m4a, flac, aiff |mp4, mov, m4v|
 
 ## Export video quality params
 The quality and quantity of exported videos can be configured using `ExportParamsProvider` interface. Just put a required video quality into `ExportManager.Params.Builder` constructor. Check out an [**example**](https://vebanuba.notion.site/Configure-export-params-93e66c89d491449ea06cf6f24b739697), where multiple video files are exported: the first and the second with the most suitable quality params (defined by `sizeProvider.provideOptimalExportVideoSize()` method) and the third with 360p quality (defined by using an Export API constant `VideoResolution.VGA360`).
 This sample has a custom implementation [ExportParamsProvider](https://github.com/Banuba/ve-sdk-android-export-sample/blob/ae48357eace151e99da3d5ee9be125858663311f/app/src/main/java/com/banuba/example/exportapp/CustomExportParamsProvider.kt).
 
 See the **default bitrate (kb/s)** for exported video (without audio) in the table below:
-| 360p(360 x 640) | 480p(480 x 854) | HD(720 x 1280) | FHD(1080 x 1920) |
-| --------------- | --------------- | -------------- | ---------------- |
-|             1200|             2000|            4000|              6400|
+| 360p(360 x 640) | 480p(480 x 854) | 540p(540 x 960) | HD(720 x 1280) | FHD(1080 x 1920) | 
+| --------------- | --------------- | --------------- |--------------- | ---------------- |
+|             1200|             2000|            2000 |            4000|              6400|
 
 ## Token
 We offer а free 14-days trial for you could thoroughly test and assess Export API functionality in your app. To get access to your trial, please, get in touch with us by [filling a form](https://www.banuba.com/video-editor-sdk) on our website. Our sales managers will send you the trial token.
