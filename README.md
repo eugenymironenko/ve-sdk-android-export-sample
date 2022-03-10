@@ -209,3 +209,7 @@ implementation "com.banuba.sdk:ve-effects-sdk:${banubaSdkVersion}"
 Note that you can use **fx** and **time** effects only available to you according to the pricing plan. Trying to use prohibited effects will lead to an exception.
 
 Please, checkout [example](app/src/main/java/com/banuba/example/exportapp/MainActivity.kt#L173) of creating effects.
+
+### Documentation
+
+[Export API Documentation](mddocs/index.md)
