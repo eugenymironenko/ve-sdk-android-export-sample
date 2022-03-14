@@ -210,6 +210,12 @@ Note that you can use **fx** and **time** effects only available to you accordin
 
 Please, checkout [example](app/src/main/java/com/banuba/example/exportapp/MainActivity.kt#L173) of creating effects.
 
-### Documentation
+## API Reference
 
-[Export API Documentation](mddocs/index.md)
+List of Video Editor APIs utilized in export sample.
+
+### Export API
+
+```ve-export-sdk``` module contains interfaces and classes for handling and configuring export process.
+
+[API Reference](mddocs/index.md)
