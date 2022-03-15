@@ -10,8 +10,8 @@ import com.banuba.sdk.ve.domain.VideoRangeList
 import com.banuba.sdk.ve.effects.Effects
 import com.banuba.sdk.ve.effects.WatermarkAlignment
 import com.banuba.sdk.ve.effects.WatermarkBuilder
+import com.banuba.sdk.ve.effects.music.MusicEffect
 import com.banuba.sdk.ve.ext.withWatermark
-import com.banuba.sdk.ve.player.MusicEffect
 import com.banuba.sdk.ve.processing.ExportManager
 
 class CustomExportParamsProvider(
@@ -39,7 +39,7 @@ class CustomExportParamsProvider(
         } else Uri.EMPTY
 
         val paramsHdWithWatermark =
-            ExportManager.Params.Builder(VideoResolution.HD)
+            ExportManager.Params.Builder(VideoResolution.Exact.HD)
                 .effects(effects.withWatermark(watermarkBuilder, WatermarkAlignment.BOTTOM_RIGHT))
                 .fileName("export_default")
                 .debugEnabled(true)

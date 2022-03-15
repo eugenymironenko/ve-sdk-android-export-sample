@@ -18,7 +18,7 @@ class ExportApp : Application() {
                 VeSdkKoinModule().module,
                 VeExportKoinModule().module,
                 TokenStorageKoinModule().module,
-                ExportSampleKoinModule().module,
+                ExportSampleKoinModule().module
             )
         }
     }

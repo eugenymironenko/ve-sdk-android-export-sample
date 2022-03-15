@@ -41,7 +41,7 @@ dependencies {
     implementation 'io.insert-koin:koin-android:2.2.3'
     implementation 'io.insert-koin:koin-androidx-viewmodel:2.2.3'
 
-    def banubaSdkVersion = '1.19.0'
+    def banubaSdkVersion = '1.22.0'
     implementation "com.banuba.sdk:banuba-token-storage-sdk:${banubaSdkVersion}"
     implementation "com.banuba.sdk:core-sdk:${banubaSdkVersion}"
     implementation "com.banuba.sdk:ve-sdk:${banubaSdkVersion}"
