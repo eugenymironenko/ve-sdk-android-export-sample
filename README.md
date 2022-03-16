@@ -62,7 +62,7 @@ Banuba token should be put [here](https://github.com/Banuba/ve-sdk-android-expor
 Please, specify a list of dependencies as in [app/build.gradle](app/build.gradle) file to integrate export functionality of Export API.
 
 ``` groovy
-def banubaSdkVersion = '1.19.0'
+def banubaSdkVersion = '1.22.0'
 implementation "com.banuba.sdk:banuba-token-storage-sdk:${banubaSdkVersion}"
 implementation "com.banuba.sdk:core-sdk:${banubaSdkVersion}"
 implementation "com.banuba.sdk:ve-sdk:${banubaSdkVersion}"
