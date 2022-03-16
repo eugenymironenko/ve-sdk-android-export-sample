@@ -2,6 +2,9 @@ package com.banuba.example.exportapp
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.banuba.example.exportapp.utils.StubImageLoader
+import com.banuba.sdk.core.domain.ImageLoader
+import com.banuba.sdk.core.media.DurationExtractor
 import com.banuba.sdk.export.data.BackgroundExportFlowManager
 import com.banuba.sdk.export.data.ExportFlowManager
 import com.banuba.sdk.export.data.ExportParamsProvider
@@ -12,11 +15,11 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-class ExportSampleKoinModule() {
+class ExportSampleKoinModule {
 
     val module = module {
 
-        single<ExportFlowManager>(named("foregroundExportFlowManager")) {
+        single<ExportFlowManager>(named("foregroundExportFlowManager"), override = true) {
             ForegroundExportFlowManager(
                 exportDataProvider = get(),
                 sessionParamsProvider = get(),
@@ -24,11 +27,12 @@ class ExportSampleKoinModule() {
                 exportDir = get(named("exportDir")),
                 publishManager = get(),
                 errorParser = get(),
-                mediaFileNameHelper = get()
+                mediaFileNameHelper = get(),
+                exportBundleProvider = get()
             )
         }
 
-        single<ExportFlowManager>(named("backgroundExportFlowManager")) {
+        single<ExportFlowManager>(named("backgroundExportFlowManager"), override = true) {
             BackgroundExportFlowManager(
                 exportDataProvider = get(),
                 sessionParamsProvider = get(),
@@ -36,7 +40,8 @@ class ExportSampleKoinModule() {
                 exportNotificationManager = get(),
                 exportDir = get(named("exportDir")),
                 publishManager = get(),
-                errorParser = get()
+                errorParser = get(),
+                exportBundleProvider = get()
             )
         }
 
@@ -56,6 +61,14 @@ class ExportSampleKoinModule() {
                     R.drawable.df_fsfw
                 )
             }
+        }
+
+        single<ImageLoader>(override = true) {
+            StubImageLoader()
+        }
+
+        single(named("videoDurationExtractor")) {
+            DurationExtractor(video = true)
         }
     }
 }

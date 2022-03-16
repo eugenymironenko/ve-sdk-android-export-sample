@@ -16,8 +16,9 @@ import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
-import com.banuba.sdk.core.AspectRatio
 import com.banuba.sdk.core.Rotation
+import com.banuba.sdk.core.domain.AspectRatioProvider
+import com.banuba.sdk.core.domain.VideoSourceType
 import com.banuba.sdk.core.ext.copyFromAssetsToExternal
 import com.banuba.sdk.core.ext.isNullOrEmpty
 import com.banuba.sdk.core.media.DurationExtractor
@@ -48,6 +49,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private val backgroundExportFlowManager: ExportFlowManager by inject(named("backgroundExportFlowManager"))
     private val foregroundExportFlowManager: ExportFlowManager by inject(named("foregroundExportFlowManager"))
+    private val aspectRatioProvider: AspectRatioProvider by inject()
 
     private var isBackgroundExport = true
 
@@ -75,7 +77,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             effects = effects,
             exportMusicParams = emptyMusicParams,
             coverFrameSize = coverFrameSize,
-            aspect = AspectRatio.DEFAULT        //AspectRatio.DEFAULT == AspectRatio(9.0 / 16)
+            aspect = aspectRatioProvider.provide()        //by default provided aspect ratio = 9.0 / 16
         )
 
         if (isBackgroundExport) {
@@ -159,7 +161,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 speed = videoSpeed,             //mandatory, video playback speed
                 playFromMs = 0,                 //optional, by default equals 0
                 playToMs = videoDuration,       //optional, by default equals duration of video,
-                rotation = Rotation.ROTATION_0  //optional, by default ROTATION_0
+                rotation = Rotation.ROTATION_0,  //optional, by default ROTATION_0
+                type = VideoSourceType.GALLERY  //mandatory, type of video source (gallery, camera, slideshow)
             )
         }
         return VideoRangeList(videoRecords)
